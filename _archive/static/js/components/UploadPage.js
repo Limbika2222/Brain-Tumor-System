@@ -29,53 +29,33 @@ const UploadPage = () => {
         }
         setLoading(true);
         setError(null);
+        const formData = new FormData();
+        formData.append("file", file);
         try {
-            // Convert file to base64
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                try {
-                    const base64Image = reader.result;
-                    // Get Cloud Function URL
-                    // TODO: Update this URL after deploying the function
-                    const functionUrl = import.meta.env.VITE_CLOUD_FUNCTION_URL ||
-                        'https://us-central1-brain-tumor-system-d402a.cloudfunctions.net/predict_tumor';
-                    const response = await fetch(functionUrl, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            image: base64Image,
-                            filename: file.name,
-                        }),
-                    });
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({ error: await response.text() }));
-                        throw new Error(errorData.error || `Server error (${response.status})`);
-                    }
-                    const data = await response.json();
-                    console.log("Response:", data);
-                    setResult(data.result);
-                    setConfidence(data.confidence);
-                    setServerImageUrl(data.image_url || previewUrl);
-                }
-                catch (err) {
-                    console.error("Upload error:", err);
-                    setError("Upload failed: " + (err.message || "Unknown error"));
-                }
-                finally {
-                    setLoading(false);
-                }
-            };
-            reader.onerror = () => {
-                setError("Failed to read image file");
-                setLoading(false);
-            };
-            reader.readAsDataURL(file);
+            const response = await fetch("http://127.0.0.1:5000/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Server error (${response.status}): ${errorText}`);
+            }
+            const data = await response.json();
+            console.log("Response:", data);
+            setResult(data.result);
+            setConfidence(data.confidence);
+            setServerImageUrl("http://127.0.0.1:5000" + data.image_url);
         }
         catch (err) {
-            console.error("Error:", err);
-            setError("Upload failed: " + err.message);
+            console.error("Upload error:", err);
+            if (err.message.includes("Failed to fetch") || err.message.includes("NetworkError")) {
+                setError("Cannot connect to server. Please make sure Flask backend is running on http://127.0.0.1:5000");
+            }
+            else {
+                setError("Upload failed: " + err.message);
+            }
+        }
+        finally {
             setLoading(false);
         }
     };

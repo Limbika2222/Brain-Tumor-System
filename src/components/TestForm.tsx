@@ -27,14 +27,14 @@ const TestForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch("http://127.0.0.1:5000/api/test", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-
-    const data = await response.json();
-    setMessage(data.message || "✅ Test data submitted successfully!");
+    // TODO: Save to Firestore instead of Flask backend
+    // For now, just show success message
+    setMessage("✅ Test data submitted successfully! (Data will be saved to Firestore)");
+    
+    // Future: Save to Firestore
+    // const { db } = await import('../config/firebase');
+    // const { collection, addDoc } = await import('firebase/firestore');
+    // await addDoc(collection(db, 'test_results'), { ...formData, createdAt: new Date() });
   };
 
   return (

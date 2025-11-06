@@ -1,7 +1,7 @@
 # 🧠 Brain Tumor Detection System
 
 This project is a full-stack web application for detecting brain tumors from MRI images using a trained TensorFlow model.  
-It includes a **Flask (Python)** backend for image processing and prediction, and a **React (TypeScript + Tailwind CSS)** frontend for user interaction.
+It uses **Firebase Cloud Functions** for serverless backend processing and a **React (TypeScript + Tailwind CSS)** frontend.
 
 ---
 
@@ -11,7 +11,10 @@ It includes a **Flask (Python)** backend for image processing and prediction, an
 - TensorFlow-based deep learning model for classification  
 - Displays prediction result and confidence percentage  
 - Built with a modern frontend (React + Tailwind CSS)  
-- Flask API backend with TensorFlow integration
+- Firebase Authentication (Email/Password)
+- Serverless backend with Firebase Cloud Functions
+- Firebase Storage for image storage
+- Firestore for user data
 
 ---
 
@@ -20,13 +23,15 @@ It includes a **Flask (Python)** backend for image processing and prediction, an
 ### **Frontend**
 - React + TypeScript  
 - Tailwind CSS  
-- Fetch API for backend communication  
+- Firebase SDK
+- React Router
 
-### **Backend**
-- Flask (Python)  
+### **Backend (Serverless)**
+- Firebase Cloud Functions (Python)
 - TensorFlow / Keras  
-- NumPy, Pillow for image processing  
-- Flask-CORS for cross-origin requests  
+- NumPy, Pillow for image processing
+- Firebase Storage
+- Firestore Database
 
 ---
 
@@ -40,45 +45,61 @@ cd brain-tumor-system
 
 ---
 
-### 2️⃣ Backend Setup (Flask + TensorFlow)
+### 2️⃣ Install Dependencies
+
+**Frontend:**
 ```bash
-cd backend
+npm install
+```
+
+**Backend (Cloud Functions):**
+```bash
+cd functions
 pip install -r requirements.txt
-python app.py
+cd ..
 ```
-
-**Example `requirements.txt`:**
-```
-flask
-flask-cors
-tensorflow
-numpy
-pillow
-```
-
-Flask runs on **http://127.0.0.1:5000**
 
 ---
 
-### 3️⃣ Frontend Setup (React + TypeScript + Tailwind)
+### 3️⃣ Firebase Configuration
+
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable:
+   - Authentication (Email/Password)
+   - Firestore Database
+   - Storage
+3. Update `src/config/firebase.ts` with your Firebase config
+
+---
+
+### 4️⃣ Deploy Cloud Functions
+
 ```bash
-cd frontend
-npm install
+firebase deploy --only functions
+```
+
+After deployment, update the function URL in `src/components/UploadPage.tsx`
+
+---
+
+### 5️⃣ Start Frontend
+
+```bash
 npm run dev
 ```
 
-Vite runs on **http://localhost:5173**
+Frontend runs on **http://localhost:5173**
 
 ---
 
-## 🔗 Connecting Frontend & Backend
+## 🔗 Architecture
 
 The frontend sends image uploads to:
 ```
-http://127.0.0.1:5000/api/upload
+https://YOUR-REGION-YOUR-PROJECT.cloudfunctions.net/predict_tumor
 ```
 
-Make sure both servers are running before testing.
+No local backend server needed! Everything runs on Firebase.
 
 ---
 
