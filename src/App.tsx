@@ -15,6 +15,7 @@ import TestForm from "./components/TestForm";
 import UploadPage from "./components/UploadPage";
 import ResultPage from "./components/Result";
 import Dashboard from "./components/Dashboard";
+import PatientRecords from "./components/PatientRecords";
 
 const App: React.FC = () => {
   return (
@@ -104,6 +105,23 @@ const App: React.FC = () => {
                   <Header />
                   <div className="flex-1 p-6">
                     <Dashboard />
+                  </div>
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/records"
+          element={
+            <ProtectedRoute>
+              <div className="flex bg-gray-100 min-h-screen text-gray-800">
+                <Sidebar />
+                <div className="flex-1 flex flex-col">
+                  <Header />
+                  <div className="flex-1 p-6">
+                    <PatientRecords />
                   </div>
                 </div>
               </div>

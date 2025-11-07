@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const UploadPage: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -8,6 +9,7 @@ const UploadPage: React.FC = () => {
   const [serverImageUrl, setServerImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // 👇 Show local preview before uploading
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,16 +45,37 @@ const UploadPage: React.FC = () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Server error (${response.status}): ${errorText}`);
+      }
 
       const data = await response.json();
       console.log("Response:", data);
 
+      const absoluteImageUrl = "http://127.0.0.1:5000" + data.image_url;
+
       setResult(data.result);
       setConfidence(data.confidence);
-      setServerImageUrl("http://127.0.0.1:5000" + data.image_url);
+      setServerImageUrl(absoluteImageUrl);
+
+      // Redirect back to the test page with prediction data
+      navigate("/test", {
+        state: {
+          uploadResult: {
+            result: data.result,
+            confidence: data.confidence,
+            imageUrl: absoluteImageUrl,
+          },
+        },
+      });
     } catch (err: any) {
-      setError("Upload failed: " + err.message);
+      console.error("Upload error:", err);
+      if (err.message.includes("Failed to fetch") || err.message.includes("NetworkError")) {
+        setError("Cannot connect to server. Please make sure Flask backend is running on http://127.0.0.1:5000");
+      } else {
+        setError("Upload failed: " + err.message);
+      }
     } finally {
       setLoading(false);
     }

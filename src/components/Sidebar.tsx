@@ -1,10 +1,11 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Sidebar: React.FC = () => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
@@ -33,39 +34,28 @@ const Sidebar: React.FC = () => {
 
         <nav>
           <ul className="space-y-2">
-            <li>
-                <Link
-                    to="/"
-                    className="flex items-center gap-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition-all"
-                >
-                    <i className="fas fa-home"></i> Home
-                </Link>
-            </li>
+            {[ 
+              { to: "/", label: "Home", icon: "fa-home" },
+              { to: "/test", label: "Test Form", icon: "fa-clipboard" },
+              { to: "/upload", label: "Upload", icon: "fa-cloud-upload-alt" },
+              { to: "/records", label: "Patient Records", icon: "fa-folder-open" },
+            ].map((item) => {
+              const isActive = location.pathname === item.to;
+              const baseClasses = "flex items-center gap-3 px-4 py-2 rounded-lg transition-all";
+              const activeClasses = "bg-blue-600 text-white shadow";
+              const inactiveClasses = "hover:bg-gray-800 hover:text-white text-gray-200";
 
-            <li>
-              <Link
-                to="/dashboard"
-                className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-800 hover:text-white transition-all"
-                >
-                <i className="fas fa-info-circle"></i> Dashboard
-                </Link>
-
-            </li>
-            <li>
-              <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
-                <i className="fas fa-stethoscope"></i> Patient Records
-              </a>
-            </li>
-            <li>
-              <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
-                <i className="fas fa-user-md"></i> Doctors
-              </a>
-            </li>
-            <li>
-              <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
-                <i className="fas fa-envelope"></i> Emergency Contact
-              </a>
-            </li>
+              return (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
+                  >
+                    <i className={`fas ${item.icon}`}></i> {item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </div>
