@@ -74,8 +74,17 @@ def api_upload():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
 
+    # Load image as RGB
     img = image.load_img(filepath, target_size=(150, 150))
     img_array = image.img_to_array(img)
+
+    # ✅ Check if the image is colored
+    if img_array.shape[2] == 3:  # RGB image
+        # Optional: check if the image is actually grayscale disguised as RGB
+        if not np.allclose(img_array[:, :, 0], img_array[:, :, 1]) or not np.allclose(img_array[:, :, 0], img_array[:, :, 2]):
+            return jsonify({"error": "Error: Uploaded image is not a valid brain MRI scan."}), 400
+
+    # Preprocess for model
     img_array = np.expand_dims(img_array, axis=0) / 255.0
 
     prediction = model.predict(img_array)
